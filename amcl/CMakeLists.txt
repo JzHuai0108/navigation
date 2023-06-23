@@ -85,8 +85,9 @@ add_library(amcl_sensors
 target_link_libraries(amcl_sensors amcl_map amcl_pf)
 
 
-add_executable(amcl
-                       src/amcl_node.cpp)
+add_library(amcl_node src/amcl_node.cpp)
+
+add_executable(amcl src/main.cpp src/amcl_node.cpp)
 add_dependencies(amcl ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 target_link_libraries(amcl

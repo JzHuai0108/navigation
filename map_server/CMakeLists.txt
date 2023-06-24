@@ -13,18 +13,31 @@ find_package(SDL REQUIRED)
 find_package(SDL_image REQUIRED)
 find_package(Boost REQUIRED COMPONENTS filesystem)
 
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(YAMLCPP yaml-cpp REQUIRED)
-if(YAMLCPP_VERSION VERSION_GREATER "0.5.0")
+find_package(PkgConfig)
+
+if (ANDROID)
+    find_package(yaml-cpp REQUIRED)
     add_definitions(-DHAVE_YAMLCPP_GT_0_5_0)
+else()
+  pkg_check_modules(YAML_CPP yaml-cpp REQUIRED)
+  if(YAML_CPP_VERSION VERSION_GREATER "0.5.0")
+    add_definitions(-DHAVE_YAMLCPP_GT_0_5_0)
+  endif()
+  link_directories(${YAML_CPP_LIBRARY_DIRS})
 endif()
-link_directories(${YAMLCPP_LIBRARY_DIRS})
 
 catkin_package(
     INCLUDE_DIRS
         include
+        ${SDL_INCLUDE_DIR}
     LIBRARIES
         map_server_image_loader
+        ${SDL_LIBRARY}
+    DEPENDS
+        BULLET
+        #SDL         # <-- Does not work because SDL_INCLUDE_DIRS and SDL_LIBRARIES is not set.
+        SDL_IMAGE
+        YAML_CPP
     CATKIN_DEPENDS
         roscpp
         nav_msgs
@@ -37,7 +50,7 @@ include_directories(
     ${catkin_INCLUDE_DIRS}
     ${SDL_INCLUDE_DIR}
     ${SDL_IMAGE_INCLUDE_DIRS}
-    ${YAMLCPP_INCLUDE_DIRS}
+    ${YAML_CPP_INCLUDE_DIRS}
     ${Boost_INCLUDE_DIRS}
 )
 
@@ -54,7 +67,7 @@ add_executable(map_server src/main.cpp)
 add_dependencies(map_server ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(map_server
     map_server_image_loader
-    ${YAMLCPP_LIBRARIES}
+    ${YAML_CPP_LIBRARIES}
     ${catkin_LIBRARIES}
 )
 

@@ -46,7 +46,7 @@ catkin_package(
     tf2_msgs
     tf2_ros
   INCLUDE_DIRS include
-  LIBRARIES amcl_sensors amcl_map amcl_pf
+  LIBRARIES amcl_sensors amcl_map amcl_pf amcl_node
 )
 
 include_directories(include)
@@ -86,6 +86,7 @@ target_link_libraries(amcl_sensors amcl_map amcl_pf)
 
 
 add_library(amcl_node src/amcl_node.cpp)
+target_link_libraries(amcl_node amcl_sensors amcl_map amcl_pf)
 
 add_executable(amcl src/main.cpp src/amcl_node.cpp)
 add_dependencies(amcl ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
@@ -102,7 +103,7 @@ install(TARGETS
 )
 
 install(TARGETS
-    amcl_sensors amcl_map amcl_pf
+    amcl_sensors amcl_map amcl_pf amcl_node
     ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
     LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
     RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}

@@ -32,12 +32,23 @@ generate_dynamic_reconfigure_options(
 )
 
 catkin_package(
+    INCLUDE_DIRS include
+    LIBRARIES ${PROJECT_NAME}
     CATKIN_DEPENDS
         dynamic_reconfigure
+        actionlib
+        base_local_planner
+        clear_costmap_recovery
+        costmap_2d
         geometry_msgs
         move_base_msgs
+        nav_core
         nav_msgs
+        navfn
+        pluginlib
         roscpp
+        rotate_recovery
+        std_srvs
 )
 
 include_directories(

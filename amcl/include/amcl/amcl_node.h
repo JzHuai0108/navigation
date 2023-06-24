@@ -34,7 +34,6 @@
 #include "amcl/pf/pf.h"
 #include "amcl/sensors/amcl_odom.h"
 #include "amcl/sensors/amcl_laser.h"
-#include "portable_utils.hpp"
 
 #include "ros/assert.h"
 

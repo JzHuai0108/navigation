@@ -29,50 +29,39 @@
 
 /* Author: Brian Gerkey */
 
-#define USAGE "\nUSAGE: map_server <map.yaml>\n" \
-              "  map.yaml: map description file\n" \
-              "DEPRECATED USAGE: map_server <map> <resolution>\n" \
-              "  map: image file to load\n"\
-              "  resolution: map resolution [meters/pixel]"
-
-#include "map_server/map_server.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <fstream>
+// #include <stdio.h>
+// #include <stdlib.h>
+// #include <fstream>
 // #include <boost/filesystem.hpp>
 
 #include "ros/ros.h"
 #include "ros/console.h"
-// #include "map_server/image_loader.h"
-// #include "nav_msgs/MapMetaData.h"
+#include "map_server/image_loader.h"
+#include "nav_msgs/MapMetaData.h"
 // #include "yaml-cpp/yaml.h"
 
-
-int main(int argc, char **argv)
+class MapServer
 {
-  ros::init(argc, argv, "map_server", ros::init_options::AnonymousName);
-  if(argc != 3 && argc != 2)
-  {
-    ROS_ERROR("%s", USAGE);
-    exit(-1);
-  }
-  if (argc != 2) {
-    ROS_WARN("Using deprecated map server interface. Please switch to new interface.");
-  }
-  std::string fname(argv[1]);
-  double res = (argc == 2) ? 0.0 : atof(argv[2]);
+  public:
+    /** Trivial constructor */
+    MapServer(const std::string& fname, double res);
 
-  try
-  {
-    MapServer ms(fname, res);
-    ros::spin();
-  }
-  catch(std::runtime_error& e)
-  {
-    ROS_ERROR("map_server exception: %s", e.what());
-    return -1;
-  }
+  private:
+    ros::NodeHandle n;
+    ros::Publisher map_pub;
+    ros::Publisher metadata_pub;
+    ros::ServiceServer service;
+    bool deprecated;
 
-  return 0;
-}
+    /** Callback invoked when someone requests our service */
+    bool mapCallback(nav_msgs::GetMap::Request  &req,
+                     nav_msgs::GetMap::Response &res);
 
+    /*
+    void metadataSubscriptionCallback(const ros::SingleSubscriberPublisher& pub)
+    {
+      pub.publish( meta_data_message_ );
+    }
+    */
+
+};

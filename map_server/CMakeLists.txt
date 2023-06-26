@@ -63,10 +63,17 @@ target_link_libraries(map_server_image_loader
     ${SDL_IMAGE_LIBRARIES}
 )
 
+add_library(map_server2 src/map_server.cpp)
+add_dependencies(map_server2 ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(map_server2 map_server_image_loader
+    ${YAML_CPP_LIBRARIES}
+    ${catkin_LIBRARIES}
+)
+
 add_executable(map_server src/main.cpp)
 add_dependencies(map_server ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(map_server
-    map_server_image_loader
+    map_server2
     ${YAML_CPP_LIBRARIES}
     ${catkin_LIBRARIES}
 )

@@ -73,7 +73,7 @@ param_t loadParameterWithDeprecation(const ros::NodeHandle& nh, const std::strin
  *
  * Parameters loaded exclusively through dynamic reconfigure can't really use loadParamWithDeprecation.
  */
-void warnRenamedParameter(const ros::NodeHandle& nh, const std::string current_name, const std::string old_name)
+inline void warnRenamedParameter(const ros::NodeHandle& nh, const std::string current_name, const std::string old_name)
 {
   if (nh.hasParam(old_name))
   {

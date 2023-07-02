@@ -109,7 +109,9 @@ add_library(base_local_planner
 	src/simple_trajectory_generator.cpp
 	src/trajectory.cpp
 	src/twirling_cost_function.cpp
-	src/voxel_grid_model.cpp)
+	src/voxel_grid_model.cpp
+    src/trajectory_planner.cpp
+	src/trajectory_planner_ros.cpp)
 add_dependencies(base_local_planner base_local_planner_gencfg)
 add_dependencies(base_local_planner base_local_planner_generate_messages_cpp)
 add_dependencies(base_local_planner nav_msgs_generate_messages_cpp)

@@ -234,6 +234,7 @@ protected:
   std::string global_frame_;  ///< @brief The global frame for the costmap
   std::string robot_base_frame_;  ///< @brief The frame_id of the robot base
   double transform_tolerance_;  ///< timeout before transform errors
+  double can_transform_timeout_;
 
 private:
   /** @brief Set the footprint from the new_config object.
@@ -270,6 +271,9 @@ private:
   float footprint_padding_;
   costmap_2d::Costmap2DConfig old_config_;
 };
+
+boost::shared_ptr<Layer> CreateInstanceLayer(const std::string &type);
+
 // class Costmap2DROS
 }  // namespace costmap_2d
 

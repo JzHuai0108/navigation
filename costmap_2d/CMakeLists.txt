@@ -93,6 +93,10 @@ add_library(costmap_2d
   src/costmap_math.cpp
   src/footprint.cpp
   src/costmap_layer.cpp
+  plugins/inflation_layer.cpp
+  plugins/obstacle_layer.cpp
+  plugins/static_layer.cpp
+  plugins/voxel_layer.cpp
 )
 add_dependencies(costmap_2d ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(costmap_2d

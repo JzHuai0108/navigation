@@ -234,6 +234,11 @@ namespace move_base {
       bool setup_, p_freq_change_, c_freq_change_;
       bool new_global_plan_;
   };
+
+  boost::shared_ptr<nav_core::BaseGlobalPlanner> CreateInstanceBGP(const std::string &bgp_name);
+  boost::shared_ptr<nav_core::BaseLocalPlanner> CreateInstanceBLP(const std::string &blp_name);
+  boost::shared_ptr<nav_core::RecoveryBehavior> CreateInstanceRB(const std::string &rb_name);
+
 };
 #endif
 

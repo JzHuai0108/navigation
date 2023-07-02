@@ -37,6 +37,12 @@
  *********************************************************************/
 #include <costmap_2d/layered_costmap.h>
 #include <costmap_2d/costmap_2d_ros.h>
+
+#include <costmap_2d/static_layer.h>
+#include <costmap_2d/voxel_layer.h>
+#include <costmap_2d/obstacle_layer.h>
+#include <costmap_2d/inflation_layer.h>
+
 #include <cstdio>
 #include <string>
 #include <algorithm>
@@ -49,6 +55,21 @@ using namespace std;
 
 namespace costmap_2d
 {
+
+boost::shared_ptr<Layer> CreateInstanceLayer(const std::string &type) {
+  if (type == "costmap_2d::StaticLayer") {
+    return boost::shared_ptr<Layer>(new StaticLayer());
+  } else if (type == "costmap_2d::ObstacleLayer") {
+    return boost::shared_ptr<Layer>(new ObstacleLayer());
+  } else if (type == "costmap_2d::InflationLayer") {
+    return boost::shared_ptr<Layer>(new InflationLayer());
+  } else if (type == "costmap_2d::VoxelLayer") {
+    return boost::shared_ptr<Layer>(new VoxelLayer());
+  } else {
+    ROS_WARN("Unknown layer type %s. Use the default StaticLayer instead.", type.c_str());
+    return boost::shared_ptr<Layer>(new StaticLayer());
+  }
+}
 
 void move_parameter(ros::NodeHandle& old_h, ros::NodeHandle& new_h, std::string name, bool should_delete = true)
 {
@@ -87,12 +108,13 @@ Costmap2DROS::Costmap2DROS(const std::string& name, tf2_ros::Buffer& tf) :
   // get global and robot base frame names
   private_nh.param("global_frame", global_frame_, std::string("map"));
   private_nh.param("robot_base_frame", robot_base_frame_, std::string("base_link"));
-
+  private_nh.param("can_transform_timeout", can_transform_timeout_, 0.1);
+  ROS_INFO("%s: can_transform_timeout is %.3f sec", name_.c_str(), can_transform_timeout_);
   ros::Time last_error = ros::Time::now();
   std::string tf_error;
   // we need to make sure that the transform between the robot base frame and the global frame is available
   while (ros::ok()
-      && !tf_.canTransform(global_frame_, robot_base_frame_, ros::Time(), ros::Duration(0.1), &tf_error))
+      && !tf_.canTransform(global_frame_, robot_base_frame_, ros::Time(), ros::Duration(can_transform_timeout_), &tf_error))
   {
     ros::spinOnce();
     if (last_error + ros::Duration(5.0) < ros::Time::now())
@@ -129,13 +151,14 @@ Costmap2DROS::Costmap2DROS(const std::string& name, tf2_ros::Buffer& tf) :
     {
       std::string pname = static_cast<std::string>(my_list[i]["name"]);
       std::string type = static_cast<std::string>(my_list[i]["type"]);
-      ROS_INFO("%s: Using plugin \"%s\"", name_.c_str(), pname.c_str());
 
       copyParentParameters(pname, type, private_nh);
-
-      boost::shared_ptr<Layer> plugin = plugin_loader_.createInstance(type);
+      ROS_INFO("%s: Using plugin \"%s\"", name_.c_str(), pname.c_str());
+      boost::shared_ptr<Layer> plugin = CreateInstanceLayer(type);
+      ROS_INFO("%s: Created plugin instance", name_.c_str());
       layered_costmap_->addPlugin(plugin);
       plugin->initialize(layered_costmap_, name + "/" + pname, &tf_);
+      ROS_INFO("%s: Initialized plugin \"%s\"", name_.c_str(), pname.c_str());
     }
   }
 

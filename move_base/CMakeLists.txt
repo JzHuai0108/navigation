@@ -4,8 +4,14 @@ project(move_base)
 find_package(catkin REQUIRED
     COMPONENTS
         actionlib
+        carrot_planner
+        global_planner
+        navfn
         base_local_planner
+        dwa_local_planner
         clear_costmap_recovery
+        rotate_recovery
+        move_slow_and_clear
         cmake_modules
         costmap_2d
         dynamic_reconfigure
@@ -14,11 +20,9 @@ find_package(catkin REQUIRED
         move_base_msgs
         nav_core
         nav_msgs
-        navfn
         pluginlib
         roscpp
         rospy
-        rotate_recovery
         std_srvs
         tf2_geometry_msgs
         tf2_ros
@@ -37,17 +41,21 @@ catkin_package(
     CATKIN_DEPENDS
         dynamic_reconfigure
         actionlib
+        carrot_planner
+        global_planner
+        navfn
         base_local_planner
+        dwa_local_planner
         clear_costmap_recovery
+        rotate_recovery
+        move_slow_and_clear
         costmap_2d
         geometry_msgs
         move_base_msgs
         nav_core
         nav_msgs
-        navfn
         pluginlib
         roscpp
-        rotate_recovery
         std_srvs
 )
 

@@ -329,6 +329,13 @@ namespace move_base {
     action_goal_pub_.publish(action_goal);
   }
 
+  void MoveBase::goalCB2(const geometry_msgs::PoseStamped& goal){
+    move_base_msgs::MoveBaseActionGoal action_goal;
+    action_goal.header.stamp = ros::Time::now();
+    action_goal.goal.target_pose = goal;
+    action_goal_pub_.publish(action_goal);
+  }
+
   void MoveBase::clearCostmapWindows(double size_x, double size_y){
     geometry_msgs::PoseStamped global_pose;
 
@@ -1041,6 +1048,8 @@ namespace move_base {
           else if(recovery_trigger_ == PLANNING_R){
             ROS_ERROR("Aborting because a valid plan could not be found. Even after executing all recovery behaviors");
             as_->setAborted(move_base_msgs::MoveBaseResult(), "Failed to find a valid plan. Even after executing recovery behaviors.");
+            ROS_INFO("Retry the goal with stamp %.6f after executing recovery behaviors", goal.header.stamp.toSec());
+            goalCB2(goal);
           }
           else if(recovery_trigger_ == OSCILLATION_R){
             ROS_ERROR("Aborting because the robot appears to be oscillating over and over. Even after executing all recovery behaviors");

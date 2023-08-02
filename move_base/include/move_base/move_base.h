@@ -158,6 +158,8 @@ namespace move_base {
 
       void goalCB(const geometry_msgs::PoseStamped::ConstPtr& goal);
 
+      void goalCB2(const geometry_msgs::PoseStamped& goal);
+
       void planThread();
 
       void executeCb(const move_base_msgs::MoveBaseGoalConstPtr& move_base_goal);

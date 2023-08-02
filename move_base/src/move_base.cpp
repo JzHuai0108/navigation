@@ -1146,6 +1146,7 @@ namespace move_base {
       return false;
     }
 
+    ROS_INFO("Successfully loaded custom recovery behaviors with the last being %s.", recovery_behavior_names_.back().c_str());
     //if we've made it here... we've constructed a recovery behavior list successfully
     return true;
   }

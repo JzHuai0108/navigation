@@ -112,7 +112,7 @@ angle_diff(double a, double b)
     return(d2);
 }
 
-static const std::string scan_topic_ = "scan";
+// static const std::string scan_topic_ = "scan";
 
 /* This function is only useful to have the whole code work
  * with old rosbags that have trailing slashes for their frames
@@ -187,6 +187,7 @@ class AmclNode
     //parameter for what base to use
     std::string base_frame_id_;
     std::string global_frame_id_;
+    std::string scan_topic_;
 
     bool use_map_topic_;
     bool first_map_only_;

@@ -177,6 +177,8 @@ AmclNode::AmclNode() :
   private_nh_.param("odom_frame_id", odom_frame_id_, std::string("odom"));
   private_nh_.param("base_frame_id", base_frame_id_, std::string("base_link"));
   private_nh_.param("global_frame_id", global_frame_id_, std::string("map"));
+  private_nh_.param("scan_topic", scan_topic_, std::string("scan"));
+
   private_nh_.param("resample_interval", resample_interval_, 2);
   private_nh_.param("selective_resampling", selective_resampling_, false);
   double tmp_tol;
@@ -391,6 +393,7 @@ void AmclNode::reconfigureCB(AMCLConfig &config, uint32_t level)
   odom_frame_id_ = stripSlash(config.odom_frame_id);
   base_frame_id_ = stripSlash(config.base_frame_id);
   global_frame_id_ = stripSlash(config.global_frame_id);
+  scan_topic_ = config.scan_topic;
 
   delete laser_scan_filter_;
   laser_scan_filter_ = 

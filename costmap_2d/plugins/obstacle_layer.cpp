@@ -106,6 +106,8 @@ void ObstacleLayer::onInitialize()
     {
       ROS_FATAL("Only topics that use point clouds or laser scans are currently supported");
       throw std::runtime_error("Only topics that use point clouds or laser scans are currently supported");
+    } else {
+      ROS_INFO("Obstacle layer topic %s, datatype %s", topic.c_str(), data_type.c_str());
     }
 
     std::string raytrace_range_param_name, obstacle_range_param_name;

@@ -142,6 +142,8 @@ class AmclNode
 
     int process();
     void savePoseToServer();
+    bool globalLocalizationCallback(std_srvs::Empty::Request& req,
+                                    std_srvs::Empty::Response& res);
 
   private:
     std::shared_ptr<tf2_ros::TransformBroadcaster> tfb_;
@@ -160,8 +162,6 @@ class AmclNode
     static std::vector<std::pair<int,int> > free_space_indices;
 #endif
     // Callbacks
-    bool globalLocalizationCallback(std_srvs::Empty::Request& req,
-                                    std_srvs::Empty::Response& res);
     bool nomotionUpdateCallback(std_srvs::Empty::Request& req,
                                     std_srvs::Empty::Response& res);
     bool setMapCallback(nav_msgs::SetMap::Request& req,

@@ -96,7 +96,7 @@ namespace move_base {
     }
   }
 
-  MoveBase::MoveBase(tf2_ros::Buffer& tf) :
+  MoveBase::MoveBase(tf2_ros::Buffer& tf, bool call_initialize) :
     tf_(tf),
     as_(NULL),
     planner_costmap_ros_(NULL), controller_costmap_ros_(NULL),
@@ -105,7 +105,12 @@ namespace move_base {
     recovery_loader_("nav_core", "nav_core::RecoveryBehavior"),
     planner_plan_(NULL), latest_plan_(NULL), controller_plan_(NULL),
     runPlanner_(false), setup_(false), p_freq_change_(false), c_freq_change_(false), new_global_plan_(false) {
+    if (call_initialize) {
+      initialize();
+    }
+  }
 
+  bool MoveBase::initialize() {
     as_ = new MoveBaseActionServer(ros::NodeHandle(), "move_base", boost::bind(&MoveBase::executeCb, this, _1), false);
 
     ros::NodeHandle private_nh("~");
@@ -166,6 +171,9 @@ namespace move_base {
 
     //create the ros wrapper for the planner's costmap... and initializer a pointer we'll use with the underlying map
     planner_costmap_ros_ = new costmap_2d::Costmap2DROS("global_costmap", tf_);
+    if (!planner_costmap_ros_->isConstructed()) {
+      return false;
+    }
     planner_costmap_ros_->pause();
 
     //initialize the global planner
@@ -174,11 +182,14 @@ namespace move_base {
       planner_->initialize(bgp_loader_.getName(global_planner), planner_costmap_ros_);
     } catch (const pluginlib::PluginlibException& ex) {
       ROS_FATAL("Failed to create the %s planner, are you sure it is properly registered and that the containing library is built? Exception: %s", global_planner.c_str(), ex.what());
-      exit(1);
+      return false;
     }
 
     //create the ros wrapper for the controller's costmap... and initializer a pointer we'll use with the underlying map
     controller_costmap_ros_ = new costmap_2d::Costmap2DROS("local_costmap", tf_);
+    if (!controller_costmap_ros_->isConstructed()) {
+      return false;
+    }
     controller_costmap_ros_->pause();
 
     //create a local planner
@@ -188,7 +199,7 @@ namespace move_base {
       tc_->initialize(blp_loader_.getName(local_planner), &tf_, controller_costmap_ros_);
     } catch (const pluginlib::PluginlibException& ex) {
       ROS_FATAL("Failed to create the %s planner, are you sure it is properly registered and that the containing library is built? Exception: %s", local_planner.c_str(), ex.what());
-      exit(1);
+      return false;
     }
 
     // Start actively updating costmaps based on sensor data
@@ -225,6 +236,7 @@ namespace move_base {
     dsrv_ = new dynamic_reconfigure::Server<move_base::MoveBaseConfig>(ros::NodeHandle("~"));
     dynamic_reconfigure::Server<move_base::MoveBaseConfig>::CallbackType cb = boost::bind(&MoveBase::reconfigureCB, this, _1, _2);
     dsrv_->setCallback(cb);
+    return true;
   }
 
   void MoveBase::reconfigureCB(move_base::MoveBaseConfig &config, uint32_t level){
@@ -392,13 +404,21 @@ namespace move_base {
   }
 
   bool MoveBase::clearCostmapsService(std_srvs::Empty::Request &req, std_srvs::Empty::Response &resp){
-    //clear the costmaps
+    clearCostmapsSafe();
+    return true;
+  }
+
+  void MoveBase::clearCostmapsSafe() {
     boost::unique_lock<costmap_2d::Costmap2D::mutex_t> lock_controller(*(controller_costmap_ros_->getCostmap()->getMutex()));
     controller_costmap_ros_->resetLayers();
 
     boost::unique_lock<costmap_2d::Costmap2D::mutex_t> lock_planner(*(planner_costmap_ros_->getCostmap()->getMutex()));
     planner_costmap_ros_->resetLayers();
-    return true;
+  }
+
+  void MoveBase::clearCostmapsUnsafe() {
+    controller_costmap_ros_->resetLayers();
+    planner_costmap_ros_->resetLayers();
   }
 
 

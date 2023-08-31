@@ -35,7 +35,27 @@ int main(int argc, char** argv){
   tf2_ros::Buffer buffer(ros::Duration(10));
   tf2_ros::TransformListener tf(buffer);
 
-  move_base::MoveBase move_base( buffer );
+  move_base::MoveBase move_base( buffer, false);
+  bool inited = move_base.initialize();
+  if (inited) {
+    ROS_INFO("MoveBase initialized.");
+  } else {
+    ROS_INFO("MoveBase failed to initialize!");
+  }
+
+  // int count = 0;
+  // ros::Rate r(10);
+  // while (ros::ok())
+  // {
+  //   ros::spinOnce();
+  //   r.sleep();
+  //   if (count == 50) {
+  //     move_base.clearCostmapsSafe();
+  //     ROS_INFO("Clearing costmaps!");
+  //     count = 0;
+  //   }
+  //   ++count;
+  // }
 
   //ros::MultiThreadedSpinner s;
   ros::spin();

@@ -87,7 +87,20 @@ namespace move_base {
        * @param name The name of the action
        * @param tf A reference to a TransformListener
        */
-      MoveBase(tf2_ros::Buffer& tf);
+      MoveBase(tf2_ros::Buffer& tf, bool call_initialize = true);
+
+      /**
+       * @brief try to initialize the move_base components
+       * @return True if initialization succeeded, false otherwise
+       */
+      bool initialize();
+
+      void clearCostmapsSafe();
+
+      /**
+       * @brief clear costmaps without locking costmaps
+       */
+      void clearCostmapsUnsafe();
 
       /**
        * @brief  Destructor - Cleans up

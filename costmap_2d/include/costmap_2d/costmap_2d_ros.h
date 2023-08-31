@@ -197,6 +197,10 @@ public:
     return unpadded_footprint_;
   }
 
+  bool isConstructed() const {
+    return constructed_;
+  }
+
   /**
    * @brief  Build the oriented footprint of the robot at the robot's current pose
    * @param  oriented_footprint Will be filled with the points in the oriented footprint of the robot
@@ -235,6 +239,7 @@ protected:
   std::string robot_base_frame_;  ///< @brief The frame_id of the robot base
   double transform_tolerance_;  ///< timeout before transform errors
   double can_transform_timeout_;
+  bool constructed_;
 
 private:
   /** @brief Set the footprint from the new_config object.

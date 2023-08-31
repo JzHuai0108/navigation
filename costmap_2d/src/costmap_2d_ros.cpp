@@ -87,6 +87,7 @@ Costmap2DROS::Costmap2DROS(const std::string& name, tf2_ros::Buffer& tf) :
     name_(name),
     tf_(tf),
     transform_tolerance_(0.3),
+    constructed_(false),
     map_update_thread_shutdown_(false),
     stop_updates_(false),
     initialized_(true),
@@ -109,8 +110,12 @@ Costmap2DROS::Costmap2DROS(const std::string& name, tf2_ros::Buffer& tf) :
   private_nh.param("global_frame", global_frame_, std::string("map"));
   private_nh.param("robot_base_frame", robot_base_frame_, std::string("base_link"));
   private_nh.param("can_transform_timeout", can_transform_timeout_, 0.1);
-  ROS_INFO("%s: can_transform_timeout is %.3f sec", name_.c_str(), can_transform_timeout_);
+  double wait_transform_time = 10.0;
+  private_nh.param("wait_transform_time", wait_transform_time, 10.0);
+  ROS_INFO("%s: can_transform_timeout is %.3f sec, wait_transform_time is %.3f", name_.c_str(), can_transform_timeout_, wait_transform_time);
   ros::Time last_error = ros::Time::now();
+  ros::Time wait_start_time = last_error;
+  ros::Time wait_till_time = wait_start_time + ros::Duration(wait_transform_time);
   std::string tf_error;
   // we need to make sure that the transform between the robot base frame and the global frame is available
   while (ros::ok()
@@ -126,6 +131,11 @@ Costmap2DROS::Costmap2DROS(const std::string& name, tf2_ros::Buffer& tf) :
     // The error string will accumulate and errors will typically be the same, so the last
     // will do for the warning above. Reset the string here to avoid accumulation.
     tf_error.clear();
+    if (last_error > wait_till_time) {
+      ROS_WARN("Abort creating %s costmap_2d as we waited for %.3f secs", name, (last_error - wait_start_time).toSec());
+      constructed_ = false;
+      return;
+    }
   }
 
   // check if we want a rolling window version of the costmap
@@ -189,7 +199,7 @@ Costmap2DROS::Costmap2DROS(const std::string& name, tf2_ros::Buffer& tf) :
   stop_updates_ = false;
   initialized_ = true;
   stopped_ = false;
-
+  constructed_ = true;
   // Create a time r to check if the robot is moving
   robot_stopped_ = false;
   timer_ = private_nh.createTimer(ros::Duration(.1), &Costmap2DROS::movementCB, this);

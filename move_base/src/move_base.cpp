@@ -404,11 +404,11 @@ namespace move_base {
   }
 
   bool MoveBase::clearCostmapsService(std_srvs::Empty::Request &req, std_srvs::Empty::Response &resp){
-    clearCostmapsSafe();
+    clearCostmapAndLayersSafe();
     return true;
   }
 
-  void MoveBase::clearCostmapsSafe() {
+  void MoveBase::clearCostmapAndLayersSafe() {
     boost::unique_lock<costmap_2d::Costmap2D::mutex_t> lock_controller(*(controller_costmap_ros_->getCostmap()->getMutex()));
     controller_costmap_ros_->resetLayers();
 
@@ -416,11 +416,30 @@ namespace move_base {
     planner_costmap_ros_->resetLayers();
   }
 
-  void MoveBase::clearCostmapsUnsafe() {
+  void MoveBase::clearCostmapAndLayersUnsafe() {
     controller_costmap_ros_->resetLayers();
     planner_costmap_ros_->resetLayers();
   }
 
+  void MoveBase::clearLayerUnsafe(const std::string &layername) {
+    if (layername.find("global_costmap") != std::string::npos) {
+      planner_costmap_ros_->resetLayer(layername);
+    } else if (layername.find("local_costmap") != std::string::npos) {
+      controller_costmap_ros_->resetLayer(layername);
+    } else {
+      ROS_WARN("Cannot clear costmap layer %s, layer name does not contain global_costmap or local_costmap", layername.c_str());
+    }
+  }
+
+  void MoveBase::clearCostmapUnsafe(const std::string &costmapname) {
+    if (costmapname.find("global") != std::string::npos) {
+      planner_costmap_ros_->resetCostmap();
+    } else if (costmapname.find("local") != std::string::npos) {
+      controller_costmap_ros_->resetCostmap();
+    } else {
+      ROS_WARN("Cannot clear costmap %s, costmap name does not contain global or local", costmapname.c_str());
+    }
+  }
 
   bool MoveBase::planService(nav_msgs::GetPlan::Request &req, nav_msgs::GetPlan::Response &resp){
     if(as_->isActive()){

@@ -95,12 +95,16 @@ namespace move_base {
        */
       bool initialize();
 
-      void clearCostmapsSafe();
+      void clearCostmapAndLayersSafe();
 
       /**
        * @brief clear costmaps without locking costmaps
        */
-      void clearCostmapsUnsafe();
+      void clearCostmapAndLayersUnsafe();
+
+      void clearCostmapUnsafe(const std::string &costmap);
+
+      void clearLayerUnsafe(const std::string &layer);
 
       /**
        * @brief  Destructor - Cleans up

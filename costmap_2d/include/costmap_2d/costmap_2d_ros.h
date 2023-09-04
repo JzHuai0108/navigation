@@ -107,9 +107,20 @@ public:
   void updateMap();
 
   /**
-   * @brief Reset each individual layer
+   * @brief Reset all layers and the costmap
    */
   void resetLayers();
+  
+  /**
+   * @brief only reset the cost map 
+   */
+  void resetCostmap();
+
+  /**
+   * @brief reset a plugin layer of name
+   * @param name of the plugin, e.g., global_costmap/static_layer
+   */
+  void resetLayer(const std::string& name);
 
   /** @brief Same as getLayeredCostmap()->isCurrent(). */
   bool isCurrent()

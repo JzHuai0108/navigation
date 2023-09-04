@@ -50,8 +50,8 @@ int main(int argc, char** argv){
   //   ros::spinOnce();
   //   r.sleep();
   //   if (count == 50) {
-  //     move_base.clearCostmapsSafe();
-  //     ROS_INFO("Clearing costmaps!");
+  //     move_base.clearLayerUnsafe("global_costmap/obstacle_layer");
+  //     ROS_INFO("Clearing costmaps global!");
   //     count = 0;
   //   }
   //   ++count;

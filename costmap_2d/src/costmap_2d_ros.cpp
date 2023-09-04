@@ -132,7 +132,7 @@ Costmap2DROS::Costmap2DROS(const std::string& name, tf2_ros::Buffer& tf) :
     // will do for the warning above. Reset the string here to avoid accumulation.
     tf_error.clear();
     if (last_error > wait_till_time) {
-      ROS_WARN("Abort creating %s costmap_2d as we waited for %.3f secs", name, (last_error - wait_start_time).toSec());
+      ROS_WARN("Abort creating %s costmap_2d as we waited for %.3f secs", name.c_str(), (last_error - wait_start_time).toSec());
       constructed_ = false;
       return;
     }
@@ -601,6 +601,24 @@ void Costmap2DROS::resetLayers()
   {
     (*plugin)->reset();
   }
+}
+
+void Costmap2DROS::resetCostmap() {
+  Costmap2D* top = layered_costmap_->getCostmap();
+  top->resetMap(0, 0, top->getSizeInCellsX(), top->getSizeInCellsY());
+}
+
+void Costmap2DROS::resetLayer(const std::string& name) {
+  std::vector < boost::shared_ptr<Layer> > *plugins = layered_costmap_->getPlugins();
+  for (vector<boost::shared_ptr<Layer> >::iterator plugin = plugins->begin(); plugin != plugins->end();
+      ++plugin)
+  {
+    if ((*plugin)->getName() == name) {
+      (*plugin)->reset();
+      return;
+    }
+  }
+  ROS_WARN("Costmap2DROS::resetLayer: unknown layer %s", name.c_str());
 }
 
 bool Costmap2DROS::getRobotPose(geometry_msgs::PoseStamped& global_pose) const

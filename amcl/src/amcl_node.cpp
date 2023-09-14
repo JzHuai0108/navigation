@@ -172,6 +172,9 @@ AmclNode::AmclNode() :
     odom_model_type_ = ODOM_MODEL_DIFF;
   }
 
+  double update_min_t = 10.0;
+  private_nh_.param("update_min_t", update_min_t, 10.0);
+  scan_update_interval_ = ros::Duration(update_min_t);
   private_nh_.param("update_min_d", d_thresh_, 0.2);
   private_nh_.param("update_min_a", a_thresh_, M_PI/6.0);
   private_nh_.param("odom_frame_id", odom_frame_id_, std::string("odom"));
@@ -270,6 +273,7 @@ void AmclNode::reconfigureCB(AMCLConfig &config, uint32_t level)
     config.restore_defaults = false;
   }
 
+  scan_update_interval_ = ros::Duration(config.update_min_t);
   d_thresh_ = config.update_min_d;
   a_thresh_ = config.update_min_a;
 
@@ -936,7 +940,9 @@ AmclNode::laserReceived(const sensor_msgs::LaserScanConstPtr& laser_scan)
     bool update = fabs(delta.v[0]) > d_thresh_ ||
                   fabs(delta.v[1]) > d_thresh_ ||
                   fabs(delta.v[2]) > a_thresh_;
+    bool updatepertime = scan_update_last_time_ + scan_update_interval_ < laser_scan->header.stamp;
     update = update || m_force_update;
+    update = update || updatepertime;
     m_force_update=false;
 
     // Set the laser update flags
@@ -950,7 +956,8 @@ AmclNode::laserReceived(const sensor_msgs::LaserScanConstPtr& laser_scan)
   {
     // Pose at last filter update
     pf_odom_pose_ = pose;
-
+    scan_update_last_time_ = laser_scan->header.stamp;
+    ROS_INFO("scan update last time: %.6ff, update interval: %.3f", scan_update_last_time_.toSec(), scan_update_interval_.toSec());
     // Filter is now initialized
     pf_init_ = true;
 
@@ -1055,6 +1062,7 @@ AmclNode::laserReceived(const sensor_msgs::LaserScanConstPtr& laser_scan)
     lasers_update_[laser_index] = false;
 
     pf_odom_pose_ = pose;
+    scan_update_last_time_ = laser_scan->header.stamp;
 
     // Resample the particles
     if(!(++resample_count_ % resample_interval_))

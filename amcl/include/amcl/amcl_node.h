@@ -215,6 +215,8 @@ class AmclNode
     double pf_err_, pf_z_;
     bool pf_init_;
     pf_vector_t pf_odom_pose_;
+    ros::Time scan_update_last_time_;
+    ros::Duration scan_update_interval_;
     double d_thresh_, a_thresh_;
     int resample_interval_;
     int resample_count_;

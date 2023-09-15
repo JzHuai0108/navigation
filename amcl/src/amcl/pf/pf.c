@@ -33,6 +33,7 @@
 #include "amcl/pf/pf.h"
 #include "amcl/pf/pf_pdf.h"
 #include "amcl/pf/pf_kdtree.h"
+#include "amcl/pf/quickselect.h"
 #include "portable_utils.hpp"
 
 
@@ -567,6 +568,9 @@ void pf_cluster_stats(pf_t *pf, pf_sample_set_t *set)
   size_t count;
   double weight;
 
+  float *dxlist = (float*)malloc(sizeof(float)*set->sample_count);
+  float *dylist = (float*)malloc(sizeof(float)*set->sample_count);
+
   // Cluster the samples
   pf_kdtree_cluster(set->kdtree);
   
@@ -598,11 +602,13 @@ void pf_cluster_stats(pf_t *pf, pf_sample_set_t *set)
   for (j = 0; j < 2; j++)
     for (k = 0; k < 2; k++)
       c[j][k] = 0.0;
-  
+
   // Compute cluster stats
   for (i = 0; i < set->sample_count; i++)
   {
     sample = set->samples + i;
+    dxlist[i] = sample->pose.v[0];
+    dylist[i] = sample->pose.v[1];
 
     //printf("%d %f %f %f\n", i, sample->pose.v[0], sample->pose.v[1], sample->pose.v[2]);
 
@@ -683,6 +689,24 @@ void pf_cluster_stats(pf_t *pf, pf_sample_set_t *set)
   // formula for circular statistics.
   set->cov.m[2][2] = -2 * log(sqrt(m[2] * m[2] + m[3] * m[3]));
 
+  // jhuai: we update the covariance computation to become more realistic.
+  int numsamples = set->sample_count;
+  for (int j = 0; j < numsamples; j++)
+  {
+    dxlist[j] = fabs(dxlist[j] - set->mean.v[0]);
+    dylist[j] = fabs(dylist[j] - set->mean.v[1]);
+  }
+  // int percentile = (int)(numsamples * 0.95);
+  // quickselect(dxlist, percentile, numsamples);
+  // float percentilex = dxlist[percentile];
+  // quickselect(dylist, percentile, numsamples);
+  // float percentiley = dylist[percentile];
+
+  float percentilex = findmax(dxlist, numsamples);
+  float percentiley = findmax(dylist, numsamples);
+
+  set->cov.m[0][0] = percentilex * percentilex;
+  set->cov.m[1][1] = percentiley * percentiley;
   return;
 }
 

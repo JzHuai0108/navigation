@@ -68,6 +68,7 @@ add_library(amcl_pf
                     src/amcl/pf/pf_kdtree.c
                     src/amcl/pf/pf_pdf.c
                     src/amcl/pf/pf_vector.c
+                    src/amcl/pf/quickselect.c
                     src/amcl/pf/eig3.c
                     src/amcl/pf/pf_draw.c)
 

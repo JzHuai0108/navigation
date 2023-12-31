@@ -131,6 +131,10 @@ public:
    */
   void resetLastUpdated();
 
+  size_t numObservations() const {
+    return observation_list_.size();
+  }
+
 private:
   /**
    * @brief  Removes any stale observations from the buffer list

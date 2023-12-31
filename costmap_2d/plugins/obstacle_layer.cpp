@@ -329,7 +329,9 @@ void ObstacleLayer::pointCloud2Callback(const sensor_msgs::PointCloud2ConstPtr& 
   // buffer the point cloud
   buffer->lock();
   buffer->bufferCloud(*message);
+  // size_t numframes = buffer->numObservations();
   buffer->unlock();
+  // ROS_INFO("Obstacle layer received %zu frames", numframes);
 }
 
 void ObstacleLayer::updateBounds(double robot_x, double robot_y, double robot_yaw, double* min_x,
